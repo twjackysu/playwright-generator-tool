@@ -1,7 +1,7 @@
 "use client";
 
 import { callOpenAIApi } from "@/apis/openAIApi";
-import { TextareaAutosize as BaseTextareaAutosize } from "@mui/base/TextareaAutosize";
+import { TextareaAutosize } from "@mui/base/TextareaAutosize";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
@@ -13,9 +13,15 @@ import Typography from "@mui/material/Typography";
 import { blue, grey } from "@mui/material/colors";
 import { styled } from "@mui/system";
 import OpenAI from "openai";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-const TextareaAutosize = styled(BaseTextareaAutosize)(
+const StyledTypography = styled(Typography)(
+  `
+  white-space: pre-wrap;
+  `
+);
+
+const StyledTextareaAutosize = styled(TextareaAutosize)(
   ({ theme }) => `
   box-sizing: border-box;
   width: 100%;
@@ -57,6 +63,7 @@ export default function Home() {
   `);
   const [stepsCategory, setStepsCategory] =
     useState<OpenAI.ChatCompletion.Choice | null>(null);
+  const [currentStep, setCurrentStep] = useState(0);
   const [oneLineCodes, setOneLineCodes] = useState<
     OpenAI.ChatCompletion.Choice[]
   >([]);
@@ -79,11 +86,11 @@ export default function Home() {
           },
           {
             role: "assistant",
-            content: "1. goto url 2. click 3. expect page title",
+            content: "1. goto url\n2. click\n3. expect page title",
           },
           { role: "user", content: question },
         ],
-        model: "gpt-4-0125-preview",
+        model: "gpt-4-turbo-preview",
       });
       setStepsCategory(result);
     } catch (e) {
@@ -139,7 +146,7 @@ export default function Home() {
           },
           { role: "user", content: JSON.stringify(obj) },
         ],
-        model: "gpt-4-0125-preview",
+        model: "gpt-4-turbo-preview",
       });
       setOneLineCodes((prev) => [...prev, result]);
     } catch (e) {
@@ -152,11 +159,25 @@ export default function Home() {
   const handleGetStepsCategoryButtonClick = () => {
     callStepCategoryApi(stepsScript);
   };
+  const currentStepText = useMemo(
+    () => stepsScript.trim().split("\n")[currentStep],
+    [stepsScript, currentStep]
+  );
+  const currentStepCategory = useMemo(
+    () => stepsCategory?.message.content?.trim().split("\n")[currentStep] || "",
+    [stepsCategory, currentStep]
+  );
+  const currentStepObject = useMemo(
+    () => ({
+      text: currentStepText,
+      category: currentStepCategory,
+    }),
+    [currentStepCategory, currentStepText]
+  );
+
   const handleGetOneLineCodeButtonClick = () => {
-    callGetPlayWrightApi({
-      text: '4. 預期某個table內有"2023Q3"的字樣',
-      category: "expect text",
-    });
+    callGetPlayWrightApi(currentStepObject);
+    setCurrentStep((prev) => prev + 1);
   };
   return (
     <main>
@@ -174,7 +195,7 @@ export default function Home() {
                 Test scenario
               </Typography>
             </Stack>
-            <TextareaAutosize
+            <StyledTextareaAutosize
               minRows={10}
               value={stepsScript}
               onChange={handleTextAreChange}
@@ -187,16 +208,28 @@ export default function Home() {
             </Typography>
             <Card>
               <CardContent>
-                <Typography variant="body2" color="text.secondary">
-                  {JSON.stringify(stepsCategory)}
-                </Typography>
+                <StyledTypography variant="body2" color="text.secondary">
+                  {JSON.stringify(stepsCategory, null, 4)}
+                </StyledTypography>
               </CardContent>
             </Card>
-            <TextareaAutosize
-              minRows={10}
-              value={stepsScript}
-              onChange={handleTextAreChange}
-            />
+            <Typography variant="h6" gutterBottom>
+              Current Step
+            </Typography>
+            <Card>
+              <CardContent>
+                <StyledTypography variant="body2" color="text.secondary">
+                  {JSON.stringify(
+                    {
+                      text: currentStepText,
+                      category: currentStepCategory,
+                    },
+                    null,
+                    4
+                  )}
+                </StyledTypography>
+              </CardContent>
+            </Card>
             <Button onClick={handleGetOneLineCodeButtonClick}>
               GetOneLineCode
             </Button>
@@ -205,9 +238,9 @@ export default function Home() {
             </Typography>
             <Card>
               <CardContent>
-                <Typography variant="body2" color="text.secondary">
-                  {JSON.stringify(oneLineCodes)}
-                </Typography>
+                <StyledTypography variant="body2" color="text.secondary">
+                  {JSON.stringify(oneLineCodes, null, 4)}
+                </StyledTypography>
               </CardContent>
             </Card>
           </Box>
