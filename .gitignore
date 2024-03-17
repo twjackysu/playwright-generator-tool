@@ -1,20 +1,20 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
-/.pnp
+/webui/node_modules
+/webui/.pnp
 .pnp.js
 .yarn/install-state.gz
 
 # testing
-/coverage
+/webui/coverage
 
 # next.js
-/.next/
-/out/
+/webui/.next/
+/webui/out/
 
 # production
-/build
+/webui/build
 
 # misc
 .DS_Store

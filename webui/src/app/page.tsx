@@ -6,6 +6,7 @@ import {
   callIsUIChangedApi,
 } from "@/apis/openAIApi";
 import { fill } from "@/snapshot/temp";
+import { exec } from "@/utils/execPlaywright";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
@@ -73,6 +74,7 @@ const page = await context.newPage();
     }
     return false;
   }, [isUIChangedQueryResult, currentStep]);
+
   const currentStepObject = useMemo(
     () => ({
       text: currentStepText,
@@ -97,6 +99,11 @@ const page = await context.newPage();
       (result) => setAllStepPlayWrightQueryResult((prev) => [...prev, result])
     );
     setCurrentStep((prev) => prev + 1);
+  };
+  const handleGetSnapshotButtonClick = () => {
+    exec(currentStepText, isUIChangedAfterCurrentStep).then((result) => {
+      setPreviousSnapshot(result);
+    });
   };
   return (
     <main>
@@ -141,6 +148,9 @@ const page = await context.newPage();
                   </Card>
                 </StyledBox>
                 <StyledBox>
+                  <Button onClick={handleGetSnapshotButtonClick}>
+                    Get snapshot
+                  </Button>
                   <Typography variant="h6" gutterBottom>
                     Previous Snapshot
                   </Typography>
