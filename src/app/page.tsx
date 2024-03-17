@@ -1,6 +1,11 @@
 "use client";
 
-import { callIsUIChangedApi, callOneStepPlayWrightApi } from "@/apis/openAIApi";
+import {
+  callGetCodeWithTextAndSnapshotApi,
+  callGetCodeWithTextApi,
+  callIsUIChangedApi,
+} from "@/apis/openAIApi";
+import { fill } from "@/snapshot/temp";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
@@ -20,6 +25,14 @@ const StyledTypography = styled(Typography)(
   `
 );
 
+const StyledBox = styled(Box)(
+  `
+  width: 100%;
+  max-height: 300px;
+  overflow: auto;
+  `
+);
+
 export default function Home() {
   const [stepsScript, setStepsScript] = useState(`
   1. 前往https://goodinfo.tw/tw/StockDetail.asp?STOCK_ID=2330
@@ -29,8 +42,14 @@ export default function Home() {
   const [isUIChangedQueryResult, setIsUIChangedQueryResult] =
     useState<OpenAI.ChatCompletion.Choice | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
+  const [previousSnapshot, setPreviousSnapshot] = useState<string>("1");
   const [allStepPlayWrightQueryResult, setAllStepPlayWrightQueryResult] =
     useState<OpenAI.ChatCompletion.Choice[]>([]);
+  const [allCode, setAllCode] = useState(`
+const browser = await chromium.launch({ headless: false });
+const context = await browser.newContext();
+const page = await context.newPage();
+  `);
 
   const handleTextAreChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setStepsScript(e.target.value);
@@ -62,9 +81,20 @@ export default function Home() {
     [isUIChangedAfterCurrentStep, currentStepText]
   );
 
-  const handleGetOneLineCodeButtonClick = () => {
-    callOneStepPlayWrightApi(currentStepText, (result) =>
-      setAllStepPlayWrightQueryResult((prev) => [...prev, result])
+  const handleGetCodeWithTextButtonClick = async () => {
+    callGetCodeWithTextApi(currentStepText, (result) => {
+      setAllStepPlayWrightQueryResult((prev) => [...prev, result]);
+      setAllCode((prev) => `${prev}\n${result.message.content}`);
+    });
+    setCurrentStep((prev) => prev + 1);
+  };
+  const handleGetCodeWithTextAndSnapshotButtonClick = () => {
+    callGetCodeWithTextAndSnapshotApi(
+      {
+        text: "3. 在上方的搜尋框按ENTER鍵",
+        snapshot: fill,
+      },
+      (result) => setAllStepPlayWrightQueryResult((prev) => [...prev, result])
     );
     setCurrentStep((prev) => prev + 1);
   };
@@ -74,57 +104,86 @@ export default function Home() {
         <CssBaseline />
         <Container maxWidth="lg">
           <Box sx={{ height: "100vh" }}>
-            <Stack
-              direction="row"
-              spacing={2}
-              justifyContent="space-between"
-              alignItems="center"
-            >
+            <Stack spacing={1}>
               <Typography variant="h6" gutterBottom>
                 Test scenario
               </Typography>
+              <StyledTextareaAutosize
+                minRows={10}
+                value={stepsScript}
+                onChange={handleTextAreChange}
+              />
+              <Button onClick={handleGetStepsCategoryButtonClick}>
+                Get the UI will change after the step
+              </Button>
+              <Typography variant="h6" gutterBottom>
+                Query result: The UI will change after the step
+              </Typography>
+              <Card>
+                <CardContent>
+                  <StyledTypography variant="body2" color="text.secondary">
+                    {JSON.stringify(isUIChangedQueryResult, null, 4)}
+                  </StyledTypography>
+                </CardContent>
+              </Card>
+
+              <Stack direction="row" alignItems="center">
+                <StyledBox>
+                  <Typography variant="h6" gutterBottom>
+                    Current Step
+                  </Typography>
+                  <Card>
+                    <CardContent>
+                      <StyledTypography variant="body2" color="text.secondary">
+                        {currentStepText}
+                      </StyledTypography>
+                    </CardContent>
+                  </Card>
+                </StyledBox>
+                <StyledBox>
+                  <Typography variant="h6" gutterBottom>
+                    Previous Snapshot
+                  </Typography>
+                  <Card>
+                    <CardContent>
+                      <StyledTypography variant="body2" color="text.secondary">
+                        {previousSnapshot}
+                      </StyledTypography>
+                    </CardContent>
+                  </Card>
+                </StyledBox>
+              </Stack>
+
+              <Button onClick={handleGetCodeWithTextButtonClick}>
+                Get code with text
+              </Button>
+              <Button onClick={handleGetCodeWithTextAndSnapshotButtonClick}>
+                Get code with text & snapshot
+              </Button>
+              <Stack direction="row" alignItems="center">
+                <StyledBox>
+                  <Typography variant="h6" gutterBottom>
+                    Each steps query result
+                  </Typography>
+                  <Card>
+                    <CardContent>
+                      <StyledTypography variant="body2" color="text.secondary">
+                        {JSON.stringify(allStepPlayWrightQueryResult, null, 4)}
+                      </StyledTypography>
+                    </CardContent>
+                  </Card>
+                </StyledBox>
+                <StyledBox>
+                  <Card>
+                    <CardContent>
+                      <StyledTypography variant="body2" color="text.secondary">
+                        {allCode}
+                      </StyledTypography>
+                    </CardContent>
+                  </Card>
+                </StyledBox>
+              </Stack>
             </Stack>
-            <StyledTextareaAutosize
-              minRows={10}
-              value={stepsScript}
-              onChange={handleTextAreChange}
-            />
-            <Button onClick={handleGetStepsCategoryButtonClick}>
-              GetStepsCategory
-            </Button>
-            <Typography variant="h6" gutterBottom>
-              StepsCategory
-            </Typography>
-            <Card>
-              <CardContent>
-                <StyledTypography variant="body2" color="text.secondary">
-                  {JSON.stringify(isUIChangedQueryResult, null, 4)}
-                </StyledTypography>
-              </CardContent>
-            </Card>
-            <Typography variant="h6" gutterBottom>
-              Current Step
-            </Typography>
-            <Card>
-              <CardContent>
-                <StyledTypography variant="body2" color="text.secondary">
-                  {currentStepText}
-                </StyledTypography>
-              </CardContent>
-            </Card>
-            <Button onClick={handleGetOneLineCodeButtonClick}>
-              GetOneLineCode
-            </Button>
-            <Typography variant="h6" gutterBottom>
-              OneLineCode
-            </Typography>
-            <Card>
-              <CardContent>
-                <StyledTypography variant="body2" color="text.secondary">
-                  {JSON.stringify(allStepPlayWrightQueryResult, null, 4)}
-                </StyledTypography>
-              </CardContent>
-            </Card>
           </Box>
         </Container>
       </>
