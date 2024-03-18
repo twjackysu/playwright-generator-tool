@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Playwright Generator Tool
+
+Welcome to the **Playwright Generator Tool** repository!
+
+This project aims to leverage the power of OpenAI's ChatGPT to generate end-to-end (E2E) test cases' code. While still in development, your contributions and ideas are highly welcome to shape its future direction.
+
+## Features (Under Development)
+- Utilizes OpenAI's ChatGPT to generate E2E test cases' code.
+- Simplifies the process of creating comprehensive test suites.
+- Seamless integration with Playwright for browser automation.
+
+## How to Contribute
+Contributions are vital for enhancing the capabilities and robustness of this tool. Whether you're interested in adding new features, fixing bugs, or improving documentation, your help is appreciated.
+
+1. **Fork** the repository.
+2. Create a **branch** for your changes.
+3. **Commit** your changes with descriptive messages.
+4. **Push** your changes to your fork.
+5. Submit a **pull request (PR)** to the `main` branch of this repository.
 
 ## Getting Started
+To get started with the development environment, follow these steps:
 
-First, run the development server:
+### Web UI
+1. Navigate to the `webui` folder.
+2. Run `npm install` to install dependencies.
+3. Execute `npm run dev` to start the frontend development server.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Server
+1. Go to the `server` folder.
+2. Run `npm install` to install dependencies.
+3. Start the backend Express server by running `npm run start`.
+4. Additionally, for backend testing, install Playwright dependencies by running `npx playwright install`.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Contact
+If you have any questions, suggestions, or just want to discuss the project's direction, feel free to reach out. You can contact us through GitHub issues or directly by email.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Let's collaborate and build something great together!
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+**Happy coding!**
