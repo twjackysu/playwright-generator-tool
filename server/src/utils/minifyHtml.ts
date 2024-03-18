@@ -7,7 +7,8 @@ export function minifyHtml(html: string): string {
     conservativeCollapse: true,
     decodeEntities: true,
     html5: true,
-    ignoreCustomComments: [],
+    // @ts-ignore
+    ignoreCustomComments: ["#"],
     minifyCSS: true,
     minifyJS: false, // Set to true if you want to minify JS as well
     removeAttributeQuotes: true,

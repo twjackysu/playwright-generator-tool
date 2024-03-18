@@ -5,8 +5,8 @@ import {
   callGetCodeWithTextApi,
   callIsUIChangedApi,
 } from "@/apis/openAIApi";
+import { callGetSnapshot } from "@/apis/serverApi";
 import { fill } from "@/snapshot/temp";
-import { exec } from "@/utils/execPlaywright";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
@@ -46,11 +46,7 @@ export default function Home() {
   const [previousSnapshot, setPreviousSnapshot] = useState<string>("1");
   const [allStepPlayWrightQueryResult, setAllStepPlayWrightQueryResult] =
     useState<OpenAI.ChatCompletion.Choice[]>([]);
-  const [allCode, setAllCode] = useState(`
-const browser = await chromium.launch({ headless: false });
-const context = await browser.newContext();
-const page = await context.newPage();
-  `);
+  const [allCode, setAllCode] = useState("");
 
   const handleTextAreChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setStepsScript(e.target.value);
@@ -101,7 +97,7 @@ const page = await context.newPage();
     setCurrentStep((prev) => prev + 1);
   };
   const handleGetSnapshotButtonClick = () => {
-    exec(currentStepText, isUIChangedAfterCurrentStep).then((result) => {
+    callGetSnapshot(allCode).then((result) => {
       setPreviousSnapshot(result);
     });
   };

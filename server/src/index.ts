@@ -6,6 +6,7 @@ import { exec } from "./utils/execPlaywright";
 
 const app = express();
 const port = 3001;
+const apiRouter = express.Router();
 
 app.get("/screenshot", async (req, res) => {
   const browser = await chromium.launch();
@@ -21,7 +22,7 @@ app.get("/snapshot", async (req, res) => {
   try {
     if (typeof req.query.code === "string") {
       const snapshot = await exec(req.query.code, true);
-      res.json(snapshot);
+      res.send(snapshot);
     } else {
       throw new Error("code is required");
     }
@@ -29,6 +30,8 @@ app.get("/snapshot", async (req, res) => {
     res.status(400).send((e as Error).message);
   }
 });
+
+app.use("/api", apiRouter);
 
 app.listen(port, () => {
   console.log(`API server listening at http://localhost:${port}`);
