@@ -1,4 +1,5 @@
 import axios from "axios";
+import OpenAI from "openai";
 
 export const callGetSnapshot = async (code: string) => {
   const response = await axios.get<string>("/api/snapshot", {
@@ -17,3 +18,9 @@ export const callGetSnapshot = async (code: string) => {
   });
   return response.data;
 };
+
+export const callPostOpenAI = async (params: OpenAI.ChatCompletionCreateParamsNonStreaming) => {
+  const response = await axios.post<OpenAI.Chat.Completions.ChatCompletion.Choice>(
+    "/api/openai", { params: params }, { headers: { 'Content-Type': 'application/json' } });
+  return response.data;
+}

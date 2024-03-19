@@ -1,25 +1,13 @@
 import { home, press } from "@/snapshot/temp";
 import OpenAI from "openai";
-
-const openai = new OpenAI({
-  baseURL: "https://api.openai.com/v1",
-  apiKey: "",
-  dangerouslyAllowBrowser: true,
-});
-
-export const callOpenAIApi = async (
-  params: OpenAI.ChatCompletionCreateParamsNonStreaming
-) => {
-  const completion = await openai.chat.completions.create(params);
-  return completion.choices[0];
-};
+import { callPostOpenAI } from './serverApi';
 
 export const callIsUIChangedApi = async (
   question: string,
   callback: (result: OpenAI.Chat.Completions.ChatCompletion.Choice) => void
 ) => {
   try {
-    const result = await callOpenAIApi({
+    const result = await callPostOpenAI({
       messages: [
         {
           role: "system",
@@ -43,6 +31,7 @@ export const callIsUIChangedApi = async (
         },
         { role: "user", content: question },
       ],
+      stream: false,
       model: "gpt-4-turbo-preview",
     });
     callback(result);
@@ -56,7 +45,7 @@ export const callGetCodeWithTextApi = async (
   callback: (result: OpenAI.Chat.Completions.ChatCompletion.Choice) => void
 ) => {
   try {
-    const result = await callOpenAIApi({
+    const result = await callPostOpenAI({
       messages: [
         {
           role: "system",
@@ -92,6 +81,7 @@ export const callGetCodeWithTextApi = async (
         },
         { role: "user", content: text },
       ],
+      stream: false,
       model: "gpt-4-turbo-preview",
     });
     callback(result);
@@ -108,7 +98,7 @@ export const callGetCodeWithTextAndSnapshotApi = async (
   callback: (result: OpenAI.Chat.Completions.ChatCompletion.Choice) => void
 ) => {
   try {
-    const result = await callOpenAIApi({
+    const result = await callPostOpenAI({
       messages: [
         {
           role: "system",
@@ -141,6 +131,7 @@ export const callGetCodeWithTextAndSnapshotApi = async (
         },
         { role: "user", content: JSON.stringify(obj) },
       ],
+      stream: false,
       model: "gpt-4-turbo-preview",
     });
     callback(result);
