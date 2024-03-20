@@ -4,7 +4,8 @@ import express from "express";
 import { chromium } from "playwright";
 import { exec } from "./utils/execPlaywright";
 import OpenAI from "openai";
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
+import minifyHTML from "./utils/minifyHtml2";
 
 dotenv.config();
 const app = express();
@@ -12,7 +13,7 @@ const port = 3001;
 const apiRouter = express.Router();
 
 app.get("/screenshot", async (req, res) => {
-  try{
+  try {
     const browser = await chromium.launch();
     const page = await browser.newPage();
     await page.goto(req.query.url as string);
@@ -20,7 +21,7 @@ app.get("/screenshot", async (req, res) => {
     await browser.close();
     res.set("Content-Type", "image/png");
     res.send(screenshot);
-  }catch(e){
+  } catch (e) {
     res.status(500).send((e as Error).message);
   }
 });
@@ -29,7 +30,7 @@ app.get("/snapshot", async (req, res) => {
   try {
     if (typeof req.query.code === "string") {
       const snapshot = await exec(req.query.code, true);
-      res.send(snapshot);
+      res.send(minifyHTML(snapshot));
     } else {
       throw new Error("code is required");
     }
@@ -42,7 +43,8 @@ app.use(express.json());
 
 app.post("/openai", async (req, res, next) => {
   try {
-    const params: OpenAI.ChatCompletionCreateParamsNonStreaming = req.body.params;
+    const params: OpenAI.ChatCompletionCreateParamsNonStreaming =
+      req.body.params;
     const openai = new OpenAI({
       baseURL: process.env.OPENAI_BASE_URL,
       apiKey: process.env.OPENAI_API_KEY,

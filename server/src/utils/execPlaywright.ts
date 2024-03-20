@@ -12,7 +12,7 @@ export const exec = async (code: string, needSnapshot: boolean) => {
     `return (async () => { ${code} })()`
   );
   let result = await func(page, getSnapshot);
-
+  await page.waitForTimeout(1000);
   if (needSnapshot) {
     const snapshot = await getSnapshot(page);
     result = snapshot.dom;
