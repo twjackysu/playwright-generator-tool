@@ -1,7 +1,7 @@
 // index.ts
 
 import express from "express";
-import { chromium } from "playwright";
+import { Browser, chromium } from "playwright";
 import { exec } from "./utils/execPlaywright";
 import OpenAI from "openai";
 import dotenv from "dotenv";
@@ -13,16 +13,21 @@ const port = 3001;
 const apiRouter = express.Router();
 
 app.get("/screenshot", async (req, res) => {
+  let browser: Browser | undefined;
   try {
-    const browser = await chromium.launch();
+    browser = await chromium.launch();
     const page = await browser.newPage();
     await page.goto(req.query.url as string);
     const screenshot = await page.screenshot();
-    await browser.close();
     res.set("Content-Type", "image/png");
     res.send(screenshot);
   } catch (e) {
     res.status(500).send((e as Error).message);
+  } finally {
+    // Always release the browser process, even if goto/screenshot threw.
+    await browser?.close().catch((e) => {
+      console.error("Failed to close browser:", (e as Error).message);
+    });
   }
 });
 
